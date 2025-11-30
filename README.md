@@ -1,6 +1,6 @@
-Car Expense Tracker - Краткая инструкция
-Сборка и запуск
-Требования
+Car Expense Tracker - Краткая инструкция   
+Сборка и запуск  
+Требования  
 .NET 8.0 SDK
 
 Visual Studio 2022 или VS Code
