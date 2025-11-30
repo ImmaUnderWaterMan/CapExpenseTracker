@@ -1,0 +1,159 @@
+﻿<Window x:Class="CapExpenseTracker.StatisticsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Статистика расходов" Height="700" Width="1000"
+        WindowStartupLocation="CenterOwner"
+        Loaded="Window_Loaded">
+    <!-- Добавляем обработчик Loaded -->
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Индикатор загрузки -->
+        <Border Grid.Row="0" Grid.RowSpan="5" Grid.ColumnSpan="2" 
+                Background="#80FFFFFF" Panel.ZIndex="1000" 
+                x:Name="loadingOverlay" Visibility="Collapsed">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="Загрузка данных..." FontSize="14" FontWeight="Bold" Margin="10"/>
+                <ProgressBar IsIndeterminate="True" Width="100" Height="20"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Панель фильтров -->
+        <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock Text="Период:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <ComboBox x:Name="cmbPeriod" ItemsSource="{Binding Periods}" SelectedItem="{Binding SelectedPeriod}" Width="120" Margin="0,0,20,0"/>
+            <TextBlock Text="С:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <DatePicker x:Name="dpStartDate" SelectedDate="{Binding StartDate}" Width="120" Margin="0,0,20,0"/>
+            <TextBlock Text="По:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <DatePicker x:Name="dpEndDate" SelectedDate="{Binding EndDate}" Width="120" Margin="0,0,20,0"/>
+            <Button x:Name="btnApplyFilter" Content="Применить" Command="{Binding ApplyFilterCommand}" Width="80" Margin="0,0,10,0"/>
+        </StackPanel>
+
+        <!-- Панель аналитики -->
+        <Border Grid.Row="1" Grid.ColumnSpan="2" BorderBrush="LightGray" BorderThickness="1" Margin="0,0,0,10" Background="#f8f8f8">
+            <StackPanel Margin="10">
+                <TextBlock Text="Аналитика и расчеты" FontWeight="Bold" Margin="0,0,0,10"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                        <TextBlock Text="Расход на 1 км" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                        <TextBlock Text="{Binding CostPerKm, StringFormat={}{0:F2} руб/км}" FontSize="12" FontWeight="Bold" Foreground="#2E7D32"/>
+                        <TextBlock Text="{Binding TotalAmount, StringFormat={}Общая сумма: {0} руб}" FontSize="10" Foreground="Gray"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Margin="10,0,10,0">
+                        <TextBlock Text="Сравнение с предыдущим периодом" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                        <TextBlock Text="{Binding ComparisonText}" FontSize="11" TextWrapping="Wrap" MaxWidth="300"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Margin="10,0,0,0">
+                        <TextBlock Text="Прогноз годовых расходов" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                        <TextBlock Text="{Binding YearlyForecast, StringFormat={}{0} руб/год}" FontSize="12" FontWeight="Bold" Foreground="#D32F2F"/>
+                        <TextBlock Text="{Binding ForecastDetails}" FontSize="10" Foreground="Gray" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- Визуализация расходов по категориям -->
+        <Border Grid.Row="2" Grid.Column="0" BorderBrush="LightGray" BorderThickness="1" Margin="0,0,5,5">
+            <StackPanel>
+                <TextBlock Text="Расходы по категориям" FontWeight="Bold" Margin="10,10,10,5"/>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Height="250" Margin="10">
+                    <ItemsControl ItemsSource="{Binding CategoryStats}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="#E0E0E0" BorderThickness="0,0,0,1" Padding="0,5">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="60"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Category}" FontWeight="SemiBold" Margin="0,0,5,2"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Amount, StringFormat={}{0} руб.}" HorizontalAlignment="Right" Margin="0,0,5,2"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding Percentage, StringFormat={}{0:F1}%}" HorizontalAlignment="Right"/>
+                                        <ProgressBar Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Value="{Binding Percentage}" Maximum="100" Height="15" Margin="5,2" Foreground="#FF2E7D32"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </StackPanel>
+        </Border>
+
+        <!-- Динамика расходов по месяцам -->
+        <Border Grid.Row="2" Grid.Column="1" BorderBrush="LightGray" BorderThickness="1" Margin="5,0,0,5">
+            <StackPanel>
+                <TextBlock Text="Динамика расходов по месяцам" FontWeight="Bold" Margin="10,10,10,5"/>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Height="250" Margin="10">
+                    <ItemsControl ItemsSource="{Binding MonthlyStats}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="#E0E0E0" BorderThickness="0,0,0,1" Padding="5">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="60"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding Period}" FontWeight="SemiBold"/>
+                                        <ProgressBar Grid.Column="1" Value="{Binding Amount}" Maximum="{Binding MaxAmount}" Margin="10,0" Height="20" Foreground="#1976D2"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding Amount, StringFormat={}{0} руб.}" HorizontalAlignment="Right" Margin="0,0,10,0"/>
+                                        <TextBlock Grid.Column="3" Text="{Binding Count, StringFormat={}{0} зап.}" HorizontalAlignment="Right" Foreground="Gray"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </StackPanel>
+        </Border>
+
+        <!-- Сводная таблица -->
+        <Border Grid.Row="3" Grid.ColumnSpan="2" BorderBrush="LightGray" BorderThickness="1" Margin="0,5,0,0">
+            <StackPanel>
+                <TextBlock Text="Детализация по типам расходов" FontWeight="Bold" Margin="10,10,10,5"/>
+                <DataGrid x:Name="dgSummary" ItemsSource="{Binding CategoryStats}" Margin="10,0,10,10" AutoGenerateColumns="False" IsReadOnly="True" Height="200">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Категория" Binding="{Binding Category}" Width="*"/>
+                        <DataGridTextColumn Header="Кол-во" Binding="{Binding Count}" Width="60"/>
+                        <DataGridTextColumn Header="Общая сумма" Binding="{Binding Amount, StringFormat={}{0} руб.}" Width="100"/>
+                        <DataGridTextColumn Header="Средняя сумма" Binding="{Binding AverageAmount, StringFormat={}{0} руб.}" Width="100"/>
+                        <DataGridTextColumn Header="Расход на 1 км" Binding="{Binding CostPerKm, StringFormat={}{0:F2} руб.}" Width="100"/>
+                        <DataGridTextColumn Header="Доля" Binding="{Binding Percentage, StringFormat={}{0:F1}%}" Width="80"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </StackPanel>
+        </Border>
+
+        <!-- Статусная строка -->
+        <StatusBar Grid.Row="4" Grid.ColumnSpan="2" Background="Transparent">
+            <StatusBarItem>
+                <TextBlock Text="Готово"/>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right">
+                <TextBlock Text="{Binding CategoryStats.Count, StringFormat={}Всего категорий: {0}}"/>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>
